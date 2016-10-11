@@ -5,6 +5,7 @@ import logging
 from datetime import datetime
 
 logging.basicConfig(level=logging.DEBUG)
+log=logging.getLogger()
 
 # localhost, defaults
 r = redis.StrictRedis(db=0, decode_responses=True)
@@ -55,9 +56,14 @@ def remove_entry(entry_hash):
 
     unused_tags = [t for t in entry['tags'] if r.scard('tag:'+t) == 0]
 
+    log.debug('Removing unused tags {}'.format(unused_tags))
+
     for tag in unused_tags:
         r.delete('tag:'+tag)
 
     r.srem('tag_index', *unused_tags)
+
+    log.debug('Removing entry {}'.format(entry_hash))
+
     r.srem('index', entry_hash)
     r.delete('entry:'+entry_hash)
