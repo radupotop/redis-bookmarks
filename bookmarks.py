@@ -17,9 +17,13 @@ def validate_entry(entry):
             raise ValidationError('Key <{}> not in entry',format(k))
     return entry
 
-def add_tags(entry_tags, entry_hash):
+def _add_tags(entry_tags, entry_hash):
     for tag in entry_tags:
         r.sadd('tag:'+tag, entry_hash)
+    r.sadd('tag_index', entry_tags)
+
+def _update_index(entry_hash):
+    r.sadd('index', entry_hash)
 
 def add_entry(entry):
     entry['date'] = datetime.utcnow()
@@ -27,12 +31,17 @@ def add_entry(entry):
     entry_body = json.dumps(entry)
 
     r.set('entry:'+entry_hash, entry_body)
-    add_tags(entry['tags'], entry_hash)
+    _add_tags(entry['tags'], entry_hash)
+    _update_index(entry_hash)
     
     return entry_hash
 
-def update_index(entry_hash):
-    r.sadd('index', entry_hash)
-
 def remove_entry(entry_hash):
+    entry = json.loads(r.get('entry:'+entry_hash))
+
+    for tag in entry['tags']:
+        r.srem('tag:'+tag, entry_hash)
+
+    r.srem('tag_index', entry['tags'])
+    r.srem('index', entry_hash)
     r.del('entry:'+entry_hash)
