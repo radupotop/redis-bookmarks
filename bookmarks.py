@@ -53,6 +53,11 @@ def remove_entry(entry_hash):
     for tag in entry['tags']:
         r.srem('tag:'+tag, entry_hash)
 
-    r.srem('tag_index', entry['tags'])
+    unused_tags = [t for t in entry['tags'] if r.scard('tag:'+t) == 0]
+
+    for tag in unused_tags:
+        r.delete('tag:'+tag)
+
+    r.srem('tag_index', *unused_tags)
     r.srem('index', entry_hash)
     r.delete('entry:'+entry_hash)
