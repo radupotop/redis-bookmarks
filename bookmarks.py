@@ -2,6 +2,7 @@ import redis
 import hashlib
 import json
 import logging
+import urllib
 from datetime import datetime
 
 logging.basicConfig(level=logging.DEBUG)
@@ -29,32 +30,33 @@ def validate_entry(entry):
             raise ValidationError('Key <{}> not in entry',format(k))
     return entry
 
-def _add_tags(entry_tags, entry_hash):
+def add_entry(entry):
+    entry['date'] = datetime.utcnow().isoformat()
+    entry['url_domain'] = urllib.parse.urlsplit(entry['url']).netloc
+
+    entry_hash = hashlib.sha1(entry['url'].encode()).hexdigest()
+    entry_body = json.dumps(entry)
+    entry_tags = set(entry['tags'])
+
+    r.set('entry:'+entry_hash, entry_body)
+
     for tag in entry_tags:
         r.sadd('tag:'+tag, entry_hash)
     r.sadd('tag_index', *entry_tags)
 
-def _update_index(entry_hash):
     r.sadd('index', entry_hash)
-
-def add_entry(entry):
-    entry['date'] = datetime.utcnow().isoformat()
-    entry_hash = hashlib.sha1(entry['url'].encode()).hexdigest()
-    entry_body = json.dumps(entry)
-
-    r.set('entry:'+entry_hash, entry_body)
-    _add_tags(entry['tags'], entry_hash)
-    _update_index(entry_hash)
+    r.sadd('domain:'+entry['url_domain'], entry_hash)
     
     return entry_hash
 
 def remove_entry(entry_hash):
     entry = json.loads(r.get('entry:'+entry_hash))
+    entry_tags = set(entry['tags'])
 
-    for tag in entry['tags']:
+    for tag in entry_tags:
         r.srem('tag:'+tag, entry_hash)
 
-    unused_tags = [t for t in entry['tags'] if r.scard('tag:'+t) == 0]
+    unused_tags = [t for t in entry_tags if r.scard('tag:'+t) == 0]
 
     log.debug('Removing unused tags {}'.format(unused_tags))
 
