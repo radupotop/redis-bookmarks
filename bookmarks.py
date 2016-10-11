@@ -52,6 +52,7 @@ def add_entry(entry):
 def remove_entry(entry_hash):
     entry = json.loads(r.get('entry:'+entry_hash))
     entry_tags = set(entry['tags'])
+    domain_key = 'domain:'+entry['url_domain']
 
     for tag in entry_tags:
         r.srem('tag:'+tag, entry_hash)
@@ -64,6 +65,11 @@ def remove_entry(entry_hash):
         r.delete('tag:'+tag)
 
     r.srem('tag_index', *unused_tags)
+
+    r.srem(domain_key, entry_hash)
+    if r.scard(domain_key) == 0:
+        r.delete(domain_key)
+        log.debug('Deleted empty domain {}'.format(domain_key))
 
     log.debug('Removing entry {}'.format(entry_hash))
 
