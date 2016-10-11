@@ -75,3 +75,18 @@ def remove_entry(entry_hash):
 
     r.srem('index', entry_hash)
     r.delete('entry:'+entry_hash)
+
+def get_all_entries():
+    return r.smembers('index')
+
+def get_entry(entry_hash):
+    return json.loads(r.get('entry:'+entry_hash))
+
+def get_all_tags():
+    return r.smembers('tag_index')
+
+def get_entries_for_tag(tagname):
+    return r.smembers('tag:'+tagname)
+
+def get_entries_for_domain(domain):
+    return r.smembers('domain:'+domain)
