@@ -18,6 +18,8 @@ _samples = [
     {'url':'http://kernel.org', 'title':'The Linux Kernel Homepage', 'tags':['linux', 'kernel']},
     {'url':'http://reddit.com', 'title':'The front page of the internet', 'tags':['reddit', 'social', 'news']},
     {'url':'http://news.ycombinator.com', 'title':'Hacker News', 'tags':['hackers', 'news', 'social']},
+    {'url':'http://reddit.com/r/aww', 'title':'Things that make you go AWW!', 'tags':['reddit', 'social', 'aww', 'pics']},
+    {'url':'https://reddit.com/r/programming', 'title':'r/programming', 'tags':['reddit', 'programming', 'development']},
 ]
 
 
@@ -93,6 +95,9 @@ def get_all_tags():
 
 def get_entries_for_tag(tagname):
     return r.smembers('tag:'+tagname)
+
+def get_all_domains():
+    return r.smembers('domain_index')
 
 def get_entries_for_domain(domain):
     return r.smembers('domain:'+domain)
