@@ -87,6 +87,16 @@ def get_all_entries(start=0, end=-1):
     """Get all entries with paging"""
     return r.zrange('entry_index', start, end)
 
+def get_paged_entries(pg_size=2):
+    """Get all entries with paging. Returns a generator."""
+    start, end = -pg_size, -1
+    while True:
+        entries = get_all_entries(start, end)
+        if not entries:
+            break
+        yield entries
+        start, end = start - pg_size, start - 1
+
 def get_entry(entry_hash):
     return json.loads(r.get('entry:'+entry_hash))
 
