@@ -31,7 +31,10 @@ def validate_entry(entry):
     return entry
 
 def add_entry(entry):
-    entry['date'] = datetime.utcnow().isoformat()
+    _now = datetime.utcnow()
+    unix_ts = _now.timestamp()
+
+    entry['date'] = _now.isoformat()
     entry['url_domain'] = urllib.parse.urlsplit(entry['url']).netloc
 
     entry_hash = hashlib.sha1(entry['url'].encode()).hexdigest()
@@ -39,13 +42,14 @@ def add_entry(entry):
     entry_tags = set(entry['tags'])
 
     r.set('entry:'+entry_hash, entry_body)
+    r.zadd('entry_index', unix_ts, entry_hash)
 
     for tag in entry_tags:
         r.sadd('tag:'+tag, entry_hash)
     r.sadd('tag_index', *entry_tags)
-
-    r.sadd('index', entry_hash)
+    
     r.sadd('domain:'+entry['url_domain'], entry_hash)
+    r.sadd('domain_index', entry['url_domain'])
     
     return entry_hash
 
@@ -69,15 +73,17 @@ def remove_entry(entry_hash):
     r.srem(domain_key, entry_hash)
     if r.scard(domain_key) == 0:
         r.delete(domain_key)
+        r.srem('domain_index', entry['url_domain'])
         log.debug('Deleted empty domain {}'.format(domain_key))
 
     log.debug('Removing entry {}'.format(entry_hash))
 
-    r.srem('index', entry_hash)
+    r.zrem('entry_index', entry_hash)
     r.delete('entry:'+entry_hash)
 
-def get_all_entries():
-    return r.smembers('index')
+def get_all_entries(start=0, end=-1):
+    """Get all entries with paging"""
+    return r.zrange('entry_index', start, end)
 
 def get_entry(entry_hash):
     return json.loads(r.get('entry:'+entry_hash))
