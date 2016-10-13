@@ -87,7 +87,7 @@ def get_all_entries(start=0, end=-1):
     """Get all entries with paging"""
     return r.zrevrange('entry_index', start, end)
 
-def get_paged_entries(pg_size=2, start_page=0):
+def get_paged_entries(start_page=0, pg_size=2):
     """Get all entries with paging. Returns a generator."""
     skip = pg_size * start_page
     start, end = 0 + skip, pg_size -1 + skip
