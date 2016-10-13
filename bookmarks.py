@@ -85,17 +85,17 @@ def remove_entry(entry_hash):
 
 def get_all_entries(start=0, end=-1):
     """Get all entries with paging"""
-    return r.zrange('entry_index', start, end)
+    return r.zrevrange('entry_index', start, end)
 
 def get_paged_entries(pg_size=2):
     """Get all entries with paging. Returns a generator."""
-    start, end = -pg_size, -1
+    start, end = 0, pg_size-1
     while True:
-        entries = get_all_entries(start, end)
+        entries = r.zrevrange('entry_index', start, end)
         if not entries:
             break
         yield entries
-        start, end = start - pg_size, start - 1
+        start, end = start + pg_size, end + pg_size
 
 def get_entry(entry_hash):
     return json.loads(r.get('entry:'+entry_hash))
