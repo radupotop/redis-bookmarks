@@ -98,6 +98,18 @@ def get_paged_entries(start_page=0, pg_size=2):
         yield entries
         start, end = start + pg_size, end + pg_size
 
+def get_page_by_day(day='today'):
+    """
+    TODO
+    Paging entries by a number (as done above) is not interesting.
+    What would really help me recall bookmarks is paging them by days.
+    Helping users recall bookmarked sites by putting them in the day's context.
+
+    We could also group bookmarks by domain inside the day's view.
+    """
+    # r.ZREVRANGEBYSCORE(key, min, max)
+    pass
+
 def get_entry(entry_hash):
     return json.loads(r.get('entry:'+entry_hash))
 
