@@ -3,7 +3,7 @@ import hashlib
 import json
 import logging
 import urllib
-from datetime import datetime
+from datetime import datetime, timedelta
 
 logging.basicConfig(level=logging.DEBUG)
 log=logging.getLogger()
@@ -98,7 +98,21 @@ def get_paged_entries(start_page=0, pg_size=2):
         yield entries
         start, end = start + pg_size, end + pg_size
 
-def get_page_by_day(day='today'):
+def _get_day_boundaries(days_delta=0):
+    """
+    Get a day's boundaries
+    A days_delta of 0 means today.
+    A days_delta of 1 means yesterday.
+
+    UTC is not okay. we should use the user's timezone.
+    """
+    base_date = datetime.utcnow() - timedelta(days=days_delta)
+    start_day = base_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_day = start_day + timedelta(days=1)
+    log.debug('Day boundary start {} end {}'.format(start_day, end_day))
+    return (start_day.timestamp(), end_day.timestamp())
+
+def get_page_by_day(days_delta=0):
     """
     TODO
     Paging entries by a number (as done above) is not interesting.
@@ -107,11 +121,14 @@ def get_page_by_day(day='today'):
 
     We could also group bookmarks by domain inside the day's view.
     """
-    # r.ZREVRANGEBYSCORE(key, min, max)
-    pass
+    start, end = _get_day_boundaries(days_delta)
+    return r.zrevrangebyscore('entry_index', end, start)
 
 def get_entry(entry_hash):
     return json.loads(r.get('entry:'+entry_hash))
+
+def get_entries(entry_list):
+    return [get_entry(e) for e in entry_list]
 
 def get_all_tags():
     return r.smembers('tag_index')
