@@ -124,6 +124,15 @@ def get_page_by_day(days_delta=0):
     start, end = _get_day_boundaries(days_delta)
     return r.zrevrangebyscore('entry_index', end, start)
 
+def group_by_domain(hash_entries):
+    """Group entries by domain"""
+    entries = (get_entry(h) for h in hash_entries)
+    domains = {}
+    for e in entries:
+        domains[e['url_domain']] = domains.get(e['url_domain']) or []
+        domains[e['url_domain']].append(e)
+    return domains
+
 def get_entry(entry_hash):
     return json.loads(r.get('entry:'+entry_hash))
 
