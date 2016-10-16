@@ -106,7 +106,7 @@ def _get_day_boundaries(days_delta=0):
 
     UTC is not okay. we should use the user's timezone.
     """
-    base_date = datetime.utcnow() - timedelta(days=days_delta)
+    base_date = datetime.utcnow() - timedelta(days=int(days_delta))
     start_day = base_date.replace(hour=0, minute=0, second=0, microsecond=0)
     end_day = start_day + timedelta(days=1)
     log.debug('Day boundary start {} end {}'.format(start_day, end_day))
