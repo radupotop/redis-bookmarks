@@ -1,29 +1,39 @@
-from aiohttp import web
-import json
+from sanic import Sanic
+from sanic.response import json
 import logging
+from pprint import pprint
 
 import bookmarks
 
 logging.basicConfig(level=logging.DEBUG)
 log=logging.getLogger()
 
-headers = {
-    'Content-type': 'application/json',
-    'Server': 'Bookmarks HTTP',
-}
+app = Sanic(__name__)
 
-async def index(Request):
-    """A GraphQL inspired HTTP API"""
-    resource = Request.match_info.get('resource')
-    subresource = Request.match_info.get('subresource')
+@app.route('/entries')
+async def index(request):
+    return json(bookmarks.get_all_entries())
 
-    if resource in [None]:
-        all_entries = json.dumps(list(bookmarks.get_all_entries()))
-        return web.Response(text=all_entries, headers=headers)
+@app.route('/entries/day/<day:int>')
+async def get_day(request, day):
+    """Get entries paged by day"""
+    return json(bookmarks.get_page_by_day(day))
 
-app = web.Application()
-app.router.add_get('/', index)
-app.router.add_get('/{resource}', index)
-app.router.add_get('/{resource}/{subresource}', index)
+@app.route('/entries/tag/<tag>')
+async def get_entries_for_tag(request, tag):
+    return json(bookmarks.get_entries_for_tag(tag))
 
-web.run_app(app)
+@app.route('/entries/domain/<domain>')
+async def get_entries_for_domain(request, domain):
+    pprint(domain)
+    return json(bookmarks.get_entries_for_domain(domain))
+
+@app.route('/tags')
+async def get_all_tags(request):
+    return json(bookmarks.get_all_tags())
+
+@app.route('/domains')
+async def get_all_domains(request):
+    return json(bookmarks.get_all_domains())
+
+app.run(host='0.0.0.0', port=8000, debug=True)
