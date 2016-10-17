@@ -131,7 +131,7 @@ def group_by_domain(hash_entries):
     for e in entries:
         domains[e['url_domain']] = domains.get(e['url_domain']) or []
         domains[e['url_domain']].append(e)
-    return domains
+    return [{'domain': name, 'entries': ent} for name, ent in domains.items()]
 
 def get_entry(entry_hash):
     return json.loads(r.get('entry:'+entry_hash))

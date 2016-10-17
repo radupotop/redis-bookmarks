@@ -13,7 +13,10 @@ async def index(request):
 @app.route('/entries/day/<day:int>')
 async def get_day(request, day):
     """Get entries paged by day"""
-    return json(bookmarks.get_page_by_day(day))
+    page = bookmarks.get_page_by_day(day)
+    if request.args.get('group'):
+        page = bookmarks.group_by_domain(page)
+    return json(page)
 
 @app.route('/entries/tag/<tag>')
 async def get_entries_for_tag(request, tag):
