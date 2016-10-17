@@ -1,12 +1,8 @@
 from sanic import Sanic
 from sanic.response import json
-import logging
-from pprint import pprint
+from sanic.log import log
 
 import bookmarks
-
-logging.basicConfig(level=logging.DEBUG)
-log=logging.getLogger()
 
 app = Sanic(__name__)
 
@@ -25,7 +21,7 @@ async def get_entries_for_tag(request, tag):
 
 @app.route('/entries/domain/<domain>')
 async def get_entries_for_domain(request, domain):
-    pprint(domain)
+    log.debug('Fetching domain {}'.format(domain))
     return json(bookmarks.get_entries_for_domain(domain))
 
 @app.route('/tags')
