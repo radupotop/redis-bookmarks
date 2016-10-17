@@ -125,7 +125,13 @@ def get_page_by_day(days_delta=0):
     return r.zrevrangebyscore('entry_index', end, start)
 
 def group_by_domain(hash_entries):
-    """Group entries by domain"""
+    """
+    Group entries by domain and then inside each domain, sort them by time,
+    and then sort domains by the time of the first entry from each.
+    Or alphabetically.
+    
+    Or better yet, do this on the frontend.
+    """
     entries = (get_entry(h) for h in hash_entries)
     domains = {}
     for e in entries:
