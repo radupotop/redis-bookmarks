@@ -5,8 +5,8 @@ import logging
 import urllib
 from datetime import datetime, timedelta
 
-logging.basicConfig(level=logging.DEBUG)
 log=logging.getLogger('Bookmarks-lib')
+log.setLevel(logging.DEBUG)
 
 # localhost, defaults
 r = redis.StrictRedis(db=0, decode_responses=True)

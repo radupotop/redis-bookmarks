@@ -38,7 +38,6 @@ async def get_all_domains(request):
 
 @app.route('/entry/<hashid>', methods=['GET', 'DELETE'])
 async def entry(request, hashid):
-    # import ipdb; ipdb.set_trace()
     if request.method == 'GET':
         entry = bookmarks.get_entry(hashid)
         if entry:
