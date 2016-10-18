@@ -52,6 +52,8 @@ def add_entry(entry):
     
     r.sadd('domain:'+entry['url_domain'], entry_hash)
     r.sadd('domain_index', entry['url_domain'])
+
+    r.sadd('active_days', _now.strftime('%Y-%M-%d'))
     
     return entry_hash
 
