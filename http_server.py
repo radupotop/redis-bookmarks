@@ -35,4 +35,23 @@ async def get_all_tags(request):
 async def get_all_domains(request):
     return json(bookmarks.get_all_domains())
 
+
+@app.route('/entry/<hashid>', methods=['GET', 'DELETE'])
+async def entry(request, hashid):
+    # import ipdb; ipdb.set_trace()
+    if request.method == 'GET':
+        entry = bookmarks.get_entry(hashid)
+        if entry:
+            return json(entry)
+        else:
+            return json('Entry does not exist', 404)
+
+    if request.method == 'DELETE':
+        was_removed = bookmarks.remove_entry(hashid)
+        if was_removed:
+            return json('Deleted entry {}'.format(hashid))
+        else:
+            return json('Entry does not exist', 404)
+
+
 app.run(host='0.0.0.0', port=8000, debug=True)

@@ -6,7 +6,7 @@ import urllib
 from datetime import datetime, timedelta
 
 logging.basicConfig(level=logging.DEBUG)
-log=logging.getLogger()
+log=logging.getLogger('Bookmarks-lib')
 
 # localhost, defaults
 r = redis.StrictRedis(db=0, decode_responses=True)
@@ -56,7 +56,10 @@ def add_entry(entry):
     return entry_hash
 
 def remove_entry(entry_hash):
-    entry = json.loads(r.get('entry:'+entry_hash))
+    entry = json.loads(r.get('entry:'+entry_hash) or 'null')
+    if not entry:
+        return False
+
     entry_tags = set(entry['tags'])
     domain_key = 'domain:'+entry['url_domain']
 
@@ -82,6 +85,7 @@ def remove_entry(entry_hash):
 
     r.zrem('entry_index', entry_hash)
     r.delete('entry:'+entry_hash)
+    return True
 
 def get_all_entries(start=0, end=-1):
     """Get all entries with paging"""
@@ -140,7 +144,7 @@ def group_by_domain(hash_entries):
     return [{'domain': name, 'entries': ent} for name, ent in domains.items()]
 
 def get_entry(entry_hash):
-    return json.loads(r.get('entry:'+entry_hash))
+    return json.loads(r.get('entry:'+entry_hash) or 'null')
 
 def get_entries(entry_list):
     return [get_entry(e) for e in entry_list]
