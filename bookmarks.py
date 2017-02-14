@@ -90,11 +90,16 @@ def remove_entry(entry_hash):
     return True
 
 def get_all_entries(start=0, end=-1):
-    """Get all entries with paging"""
+    """
+    Get all entries with paging, in reverse order - newest first
+    """
     return r.zrevrange('entry_index', start, end)
 
 def get_paged_entries(start_page=0, pg_size=2):
-    """Get all entries with paging. Returns a generator."""
+    """
+    Get all entries with paging, in reverse order - newest first.
+    Returns a generator.
+    """
     skip = pg_size * start_page
     start, end = 0 + skip, pg_size -1 + skip
     while True:
