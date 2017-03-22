@@ -38,3 +38,4 @@ Todo
 
 * Auth
 * Multi-user support
+* Chrome ext.
