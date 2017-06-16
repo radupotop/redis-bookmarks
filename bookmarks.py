@@ -5,7 +5,8 @@ import logging
 import urllib
 from datetime import datetime, timedelta
 
-log=logging.getLogger('Bookmarks-lib')
+logging.basicConfig()
+log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
 # localhost, defaults
@@ -49,12 +50,12 @@ def add_entry(entry):
     for tag in entry_tags:
         r.sadd('tag:'+tag, entry_hash)
     r.sadd('tag_index', *entry_tags)
-    
+
     r.sadd('domain:'+entry['url_domain'], entry_hash)
     r.sadd('domain_index', entry['url_domain'])
 
     r.sadd('active_days', _now.strftime('%Y-%M-%d'))
-    
+
     return entry_hash
 
 def remove_entry(entry_hash):
@@ -140,7 +141,7 @@ def group_by_domain(hash_entries):
     Group entries by domain and then inside each domain, sort them by time,
     and then sort domains by the time of the first entry from each.
     Or alphabetically.
-    
+
     Or better yet, do this on the frontend.
     """
     entries = (get_entry(h) for h in hash_entries)
