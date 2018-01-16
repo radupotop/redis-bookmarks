@@ -1,6 +1,6 @@
 from sanic import Sanic
 from sanic.response import json
-from sanic.log import log
+from sanic.log import logger as log
 
 import bookmarks
 
