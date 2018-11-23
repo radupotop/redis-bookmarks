@@ -6,9 +6,11 @@ import bookmarks
 
 app = Sanic(__name__)
 
+
 @app.route('/entries')
 async def index(request):
     return json(bookmarks.get_all_entries())
+
 
 @app.route('/entries/day/<day:int>')
 async def get_day(request, day):
@@ -18,18 +20,22 @@ async def get_day(request, day):
         page = bookmarks.group_by_domain(page)
     return json(page)
 
+
 @app.route('/entries/tag/<tag>')
 async def get_entries_for_tag(request, tag):
     return json(bookmarks.get_entries_for_tag(tag))
+
 
 @app.route('/entries/domain/<domain>')
 async def get_entries_for_domain(request, domain):
     log.debug('Fetching domain {}'.format(domain))
     return json(bookmarks.get_entries_for_domain(domain))
 
+
 @app.route('/tags')
 async def get_all_tags(request):
     return json(bookmarks.get_all_tags())
+
 
 @app.route('/domains')
 async def get_all_domains(request):
